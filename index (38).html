@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kids activities</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#10365e">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kids activities">
+<style>
+  :root {
+    --surface-0: #f4f3ef;
+    --surface-1: #ffffff;
+    --surface-2: #ffffff;
+    --text-primary: #201f1c;
+    --text-secondary: #6b6a65;
+    --text-muted: #98968f;
+    --border: #e4e2dc;
+    --border-strong: #c9c7bf;
+    --accent-bg: #e6f1fb;
+    --accent-text: #0c447c;
+    --accent-border: #85b7eb;
+    --success-bg: #eaf3de;
+    --success-text: #27500a;
+    --success-border: #97c459;
+    --danger-bg: #f8e9e9;
+    --danger-border: #d99a9a;
+    --danger-text: #a32d2d;
+    --radius: 10px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --surface-0: #171613; --surface-1: #211f1c; --surface-2: #27251f;
+      --text-primary: #f2f1ec; --text-secondary: #adaba3; --text-muted: #79776f;
+      --border: #38362f; --border-strong: #4a4840;
+      --accent-bg: #0c447c; --accent-text: #b5d4f4; --accent-border: #185fa5;
+      --success-bg: #27500a; --success-text: #c0dd97; --success-border: #3b6d11;
+      --danger-bg: #4a2020; --danger-border: #7a3838; --danger-text: #f09595;
+    }
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
+  body { margin: 0; background: var(--surface-0); color: var(--text-primary); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; min-height: 100%; }
+  * { box-sizing: border-box; }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 1.25rem 1rem 6rem; }
+  h1 { font-size: 19px; font-weight: 600; margin: 0 0 2px; }
+  .subtitle { font-size: 13px; color: var(--text-secondary); margin: 0 0 1.25rem; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 1.25rem; overflow-x: auto; }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 12px; border: none; background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .tab.active { background: var(--surface-1); border: 0.5px solid var(--border-strong); }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0; overflow: hidden; }
+  .avatar img, .child-tag img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .avatar.all { background: var(--surface-1); border: 0.5px solid var(--border-strong); color: var(--text-secondary); }
+  .avatar.thomas { background: var(--accent-bg); color: var(--accent-text); }
+  .avatar.james { background: var(--success-bg); color: var(--success-text); }
+  .tab-label { font-size: 12px; color: var(--text-secondary); }
+
+  .event-list { display: flex; flex-direction: column; gap: 8px; }
+  .event-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .team-box { border: 0.5px solid var(--border); border-radius: 12px; padding: 10px; background: var(--surface-1); display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+  .team-box-header { display: flex; align-items: center; gap: 5px; min-width: 0; }
+  .team-box-icon { font-size: 15px; line-height: 1; flex-shrink: 0; }
+  .team-box-name { font-size: 12px; font-weight: 700; line-height: 1.2; overflow-wrap: break-word; }
+  .mini-event { border-radius: 8px; padding: 7px 8px; background: var(--surface-2); border: 0.5px solid var(--border); }
+  .mini-event.is-future { background: var(--success-bg); border-color: var(--success-border); }
+  .mini-event.is-past { background: var(--danger-bg); border-color: var(--danger-border); }
+  .mini-event-title { font-size: 12px; font-weight: 500; margin: 0; }
+  .mini-event-meta { font-size: 11px; color: var(--text-secondary); margin: 1px 0 0; }
+  .mini-countdown { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 20px; display: inline-block; margin-top: 3px; }
+  .mini-countdown.is-future { background: var(--success-border); color: var(--surface-0); }
+  .mini-countdown.is-past { background: var(--danger-border); color: var(--surface-0); }
+  .mini-delete { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; float: right; padding: 0 0 0 6px; }
+  .event-card { display: flex; flex-direction: column; gap: 4px; background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .event-card.is-future { background: var(--success-bg); border-color: var(--success-border); }
+  .event-card.is-past { background: var(--danger-bg); border-color: var(--danger-border); }
+  .countdown-badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; white-space: nowrap; margin-top: 1px; }
+  .countdown-badge.is-future { background: var(--success-border); color: var(--surface-0); }
+  .countdown-badge.is-past { background: var(--danger-border); color: var(--surface-0); }
+  .event-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .team-badge { display: flex; align-items: center; gap: 7px; min-width: 0; }
+  .team-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+  .team-name { font-size: 16px; font-weight: 700; line-height: 1.2; }
+  .child-tag { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 11px; flex-shrink: 0; }
+  .event-body { flex: 1; min-width: 0; }
+  .event-title { font-size: 14px; font-weight: 500; margin: 0 0 2px; color: var(--text-secondary); }
+  .event-meta { font-size: 13px; color: var(--text-secondary); margin: 0; }
+  .event-notes { font-size: 12px; color: var(--text-muted); margin: 4px 0 0; }
+  .event-actions { display: flex; gap: 6px; flex-shrink: 0; justify-content: flex-end; }
+  .icon-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .icon-btn:hover { background: var(--surface-2); }
+
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--text-secondary); }
+  .empty p { margin: 4px 0; font-size: 14px; }
+
+  .add-btn { width: 100%; padding: 13px; border-radius: 12px; border: none; background: var(--text-primary); color: var(--surface-0); font-size: 15px; font-weight: 500; cursor: pointer; margin-bottom: 1.25rem; }
+
+  .sheet-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: flex-start; justify-content: center; z-index: 10; pointer-events: none; overflow-y: auto; padding: 2rem 0; }
+  .sheet-backdrop.open { pointer-events: auto; display: flex; }
+  .sheet { background: var(--surface-0); width: calc(100% - 2rem); max-width: 440px; border-radius: 16px; padding: 1.25rem 1.25rem 1.5rem; }
+  .sheet h2 { font-size: 17px; font-weight: 600; margin: 0 0 1rem; }
+  .field { margin-bottom: 0.9rem; }
+  .field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 9px 10px; border-radius: 8px; border: 0.5px solid var(--border-strong); background: var(--surface-1); color: var(--text-primary); font-size: 15px; font-family: inherit; }
+  .field textarea { resize: vertical; min-height: 44px; }
+  .child-pick { display: flex; gap: 8px; }
+  .child-pick button { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface-1); color: var(--text-primary); font-size: 14px; cursor: pointer; }
+  .child-pick button.picked.thomas { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent-text); }
+  .child-pick button.picked.james { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
+
+  .primary-btn { width: 100%; padding: 13px; border-radius: 10px; border: none; background: var(--text-primary); color: var(--surface-0); font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 4px; }
+  .primary-btn:disabled { opacity: 0.5; }
+  .ghost-btn { width: 100%; padding: 12px; border-radius: 10px; border: 0.5px solid var(--border-strong); background: transparent; color: var(--text-primary); font-size: 14px; cursor: pointer; margin-top: 8px; }
+  .close-x { position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 20px; color: var(--text-secondary); cursor: pointer; }
+  .sheet-head { position: relative; }
+  .status-banner { font-size: 12px; color: var(--text-muted); text-align: center; padding: 6px 1rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kids activities</h1>
+  <p class="subtitle">Thomas &amp; James's sports schedule</p>
+
+  <button class="add-btn" id="fab">+ Add activity</button>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="event-list" id="event-list"></div>
+  <div class="empty" id="empty" style="display:none;">
+    <p>Nothing added yet.</p>
+    <p>Tap "Add activity" to add a match or training session.</p>
+  </div>
+  <p class="status-banner" id="conn-status"></p>
+</div>
+
+<div class="sheet-backdrop" id="backdrop">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>Add activity</h2>
+      <button class="close-x" id="close-sheet" aria-label="Close">&times;</button>
+    </div>
+    <form id="event-form">
+      <div class="field" style="margin-bottom:1.1rem;">
+        <label style="font-size:14px; font-weight:500; color:var(--text-primary); margin-bottom:8px;">Who's this for</label>
+        <div class="child-pick">
+          <button type="button" data-child="thomas" id="pick-thomas">Thomas</button>
+          <button type="button" data-child="james" id="pick-james">James</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Team / activity (e.g. "Kilmacud Crokes")</label>
+        <input type="text" id="f-team" placeholder="Kilmacud Crokes">
+      </div>
+      <div class="field">
+        <label>What</label>
+        <input type="text" id="f-title" placeholder="Football match">
+      </div>
+      <div class="field">
+        <label>Date &amp; time</label>
+        <div style="display:flex; gap:8px;">
+          <input type="date" id="f-date" style="flex:1;">
+          <input type="time" id="f-time" style="flex:1;">
+        </div>
+      </div>
+      <div class="field">
+        <label>When (as written, e.g. "meet 8:30, throw-in 9am")</label>
+        <input type="text" id="f-when" placeholder="Saturday 10:00am">
+      </div>
+      <div class="field">
+        <label>Where</label>
+        <input type="text" id="f-location" placeholder="Clonskeagh pitch">
+      </div>
+      <div class="field">
+        <label>Notes / gear reminders</label>
+        <textarea id="f-notes" placeholder="e.g. Gumshield needed, Water bottle needed"></textarea>
+      </div>
+      <button type="submit" class="primary-btn" id="save-btn">Save</button>
+    </form>
+  </div>
+</div>
+
+<div id="err-banner" style="display:none; position:fixed; top:0; left:0; right:0; background:#a32d2d; color:#fff; font-size:12px; padding:8px 12px; z-index:999; padding-top:calc(8px + env(safe-area-inset-top,0px));"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot,
+  query, orderBy, getDocs, writeBatch
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+window.onerror = function(msg) {
+  const b = document.getElementById('err-banner');
+  b.style.display = 'block';
+  b.textContent = 'Error: ' + msg;
+};
+
+// ---- Firebase setup ----
+const firebaseConfig = {
+  apiKey: "AIzaSyA9hfzJtyBTgSDhk_2GpREmPRrW4zCTMtw",
+  authDomain: "kids-activities-224f9.firebaseapp.com",
+  projectId: "kids-activities-224f9",
+  storageBucket: "kids-activities-224f9.firebasestorage.app",
+  messagingSenderId: "943926799690",
+  appId: "1:943926799690:web:ae759f7547fc87a968a5b3"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const eventsCol = collection(db, "events");
+
+// One-time seed of the activities already tracked before this app existed.
+// Runs only if the collection is empty, so it never duplicates on repeat visits.
+const SEED_EVENTS = [
+  {"child":"thomas","eventDate":"2026-09-26","eventTime":"08:30","location":"Donnybrook Stadium, D04 W6R9","notes":"KC3. Away game. Gumshield needed. Water bottle needed.","sortKey":"2026-09-26T08:30","teamIcon":"🟣🟡⚽","teamName":"Kilmacud Crokes","title":"Football match (away) v Ranelagh Gaels","when":"Saturday 26 September — throw-in 9:00am, arrive 8:30am"},
+  {"child":"james","eventDate":"2026-10-03","eventTime":"09:00","location":"Pairc de Burca","notes":"Weekly, every Saturday 9-10am. Hurling and football. Hurl and helmet needed. Gumshield needed. Water bottle needed.","sortKey":"2026-10-03T09:00","teamIcon":"🟣🟡⚽🥍","teamName":"Kilmacud Crokes","title":"Hurling & Football Training","when":"Saturday 9-10am"},
+  {"child":"thomas","eventDate":"2026-10-01","eventTime":"18:00","location":"Pairc de Burca","notes":"Weekly, every Tuesday and Thursday. Hurling and football. Hurl and helmet needed. Gumshield needed. Water bottle needed.","sortKey":"2026-10-01T18:00","teamIcon":"🟣🟡⚽🥍","teamName":"Kilmacud Crokes","title":"Hurling & Football Training","when":"Thursday 6-7pm"},
+  {"child":"thomas","eventDate":"2026-09-29","eventTime":"18:00","location":"Pairc de Burca","notes":"Weekly, every Tuesday and Thursday. Hurling and football. Hurl and helmet needed. Gumshield needed. Water bottle needed.","sortKey":"2026-09-29T18:00","teamIcon":"🟣🟡⚽🥍","teamName":"Kilmacud Crokes","title":"Hurling & Football Training","when":"Tuesday 6-7pm"},
+  {"child":"thomas","eventDate":"2026-09-28","eventTime":"18:00","location":"St Benildus School","notes":"Weekly, every Monday and Wednesday. Shinpads needed. Water bottle needed.","sortKey":"2026-09-28T18:00","teamIcon":"🔵⚫⚽","teamName":"Mount Merrion Football","title":"Training","when":"Monday 6-7pm"},
+  {"child":"james","eventDate":"2026-10-03","eventTime":"10:00","location":"Colaiste Eoin","notes":"Weekly, every Saturday 10-11am. Shinpads needed. Water bottle needed.","sortKey":"2026-10-03T10:00","teamIcon":"🔵⚫⚽","teamName":"Mount Merrion Football","title":"Training","when":"Saturday 10-11am"},
+  {"child":"thomas","eventDate":"2026-09-30","eventTime":"18:00","location":"St Benildus School","notes":"Weekly, every Monday and Wednesday. Shinpads needed. Water bottle needed.","sortKey":"2026-09-30T18:00","teamIcon":"🔵⚫⚽","teamName":"Mount Merrion Football","title":"Training","when":"Wednesday 6-7pm"},
+  {"child":"thomas","eventDate":"2026-09-27","eventTime":"08:30","location":"Jackson Park","notes":"DDSL away match. Shinpads needed. Water bottle needed.","sortKey":"2026-09-27T08:30","teamIcon":"🔵⚫⚽","teamName":"Mount Merrion Football","title":"Away v Wayside FC","when":"Sunday 27 September — meet 8:30am, kickoff 9am"},
+  {"child":"thomas","eventDate":"2026-09-27","eventTime":"09:00","location":"","notes":"Weekly training, every Sunday 9am. Gumshield needed. Water bottle needed.","sortKey":"2026-09-27T09:00","teamIcon":"🟤⚫🏉","teamName":"Stillorgan Rugby","title":"Training","when":"Sunday 27 September — 9:00am"},
+  {"child":"james","eventDate":"2026-09-27","eventTime":"09:00","location":"","notes":"Weekly training, every Sunday 9am. Gumshield needed. Water bottle needed.","sortKey":"2026-09-27T09:00","teamIcon":"🟤⚫🏉","teamName":"Stillorgan Rugby (U7)","title":"Training","when":"Sunday 27 September — 9:00am"},
+  {"child":"james","eventDate":"2026-09-30","eventTime":"15:00","location":"UCD","notes":"Weekly, every Wednesday. Water bottle needed.","sortKey":"2026-09-30T15:00","teamIcon":"🏊","teamName":"Swimming","title":"Swimming","when":"Wednesday 3:00pm"},
+  {"child":"thomas","eventDate":"2026-09-30","eventTime":"15:00","location":"UCD","notes":"Weekly, every Wednesday. Water bottle needed.","sortKey":"2026-09-30T15:00","teamIcon":"🏊","teamName":"Swimming","title":"Swimming","when":"Wednesday 3:00pm"}
+];
+
+async function seedIfEmpty() {
+  try {
+    const snap = await getDocs(query(eventsCol));
+    if (!snap.empty) return;
+    const batch = writeBatch(db);
+    SEED_EVENTS.forEach((ev) => {
+      const ref = doc(eventsCol);
+      batch.set(ref, { ...ev, createdAt: Date.now() });
+    });
+    await batch.commit();
+  } catch (err) {
+    console.error('Seed failed', err);
+  }
+}
+
+// ---- App state ----
+let events = [];
+let activeFilter = 'all';
+let pickedChild = null;
+
+const backdrop = document.getElementById('backdrop');
+const fab = document.getElementById('fab');
+const closeSheetBtn = document.getElementById('close-sheet');
+const eventForm = document.getElementById('event-form');
+
+function openSheet() {
+  backdrop.classList.add('open');
+  pickedChild = null;
+  eventForm.reset();
+  document.getElementById('pick-thomas').classList.remove('picked','thomas');
+  document.getElementById('pick-james').classList.remove('picked','james');
+}
+function closeSheet() { backdrop.classList.remove('open'); }
+
+fab.onclick = openSheet;
+closeSheetBtn.onclick = closeSheet;
+backdrop.onclick = (e) => { if (e.target === backdrop) closeSheet(); };
+
+document.getElementById('pick-thomas').onclick = (e) => pickChild('thomas', e.currentTarget);
+document.getElementById('pick-james').onclick = (e) => pickChild('james', e.currentTarget);
+function pickChild(child, btn) {
+  pickedChild = child;
+  document.querySelectorAll('.child-pick button').forEach(b => b.classList.remove('picked','thomas','james'));
+  btn.classList.add('picked', child);
+}
+
+const TEAM_ICONS = {
+  'kilmacud crokes': '🟣🟡⚽',
+  'mount merrion football': '🔵⚫⚽',
+  'stillorgan rugby': '🟤⚫🏉',
+  'swimming': '🏊'
+};
+function iconForTeam(name) {
+  const key = (name || '').trim().toLowerCase();
+  return TEAM_ICONS[key] || '🏅';
+}
+
+eventForm.onsubmit = async (e) => {
+  e.preventDefault();
+  if (!pickedChild) { alert("Pick Thomas or James first."); return; }
+  const title = document.getElementById('f-title').value.trim();
+  const teamName = document.getElementById('f-team').value.trim();
+  if (!title && !teamName) { alert("Add at least a team or a title."); return; }
+
+  const eventDate = document.getElementById('f-date').value;
+  const eventTime = document.getElementById('f-time').value;
+  const sortKey = (eventDate || 'zzzz') + 'T' + (eventTime || '00:00');
+
+  const saveBtn = document.getElementById('save-btn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+
+  try {
+    await addDoc(eventsCol, {
+      child: pickedChild,
+      teamName,
+      teamIcon: iconForTeam(teamName),
+      title: title || teamName,
+      when: document.getElementById('f-when').value.trim(),
+      eventDate: eventDate || null,
+      eventTime: eventTime || null,
+      sortKey,
+      location: document.getElementById('f-location').value.trim(),
+      notes: document.getElementById('f-notes').value.trim(),
+      createdAt: Date.now()
+    });
+    closeSheet();
+  } catch (err) {
+    alert('Could not save — try again.');
+  }
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'Save';
+};
+
+function childLabel(child) {
+  if (child === 'thomas') return 'T';
+  if (child === 'james') return 'J';
+  return '?';
+}
+
+function computeCountdown(e) {
+  if (!e.eventDate) return null;
+  const target = new Date(e.eventDate + 'T' + (e.eventTime || '00:00') + ':00');
+  if (isNaN(target.getTime())) return null;
+  const diffMs = target.getTime() - Date.now();
+  if (diffMs <= 0) return { isPast: true, label: 'Past event' };
+  const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const days = Math.floor(totalHours / 24);
+  const hours = totalHours % 24;
+  let label;
+  if (days > 0 && hours > 0) label = `${days}d ${hours}h`;
+  else if (days > 0) label = `${days}d`;
+  else if (hours > 0) label = `${hours}h`;
+  else label = '<1h';
+  return { isPast: false, label };
+}
+
+function renderTabs() {
+  const tabs = document.getElementById('tabs');
+  const defs = [
+    { id: 'all', label: 'All', cls: 'all', photo: 'all.jpg' },
+    { id: 'thomas', label: 'Thomas', cls: 'thomas', content: 'T', photo: 'thomas.jpg' },
+    { id: 'james', label: 'James', cls: 'james', content: 'J', photo: 'james.jpg' }
+  ];
+  tabs.innerHTML = defs.map(d => `
+    <button class="tab${activeFilter === d.id ? ' active' : ''}" data-filter="${d.id}">
+      <div class="avatar ${d.cls}">${d.photo ? `<img src="${d.photo}" alt="${d.label}">` : (d.content || '')}</div>
+      <span class="tab-label">${d.label}</span>
+    </button>
+  `).join('');
+  tabs.querySelectorAll('.tab').forEach(btn => {
+    btn.onclick = () => { activeFilter = btn.dataset.filter; render(); };
+  });
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+function render() {
+  renderTabs();
+  const list = document.getElementById('event-list');
+  const empty = document.getElementById('empty');
+  const shown = activeFilter === 'all' ? events : events.filter(e => e.child === activeFilter);
+
+  if (shown.length === 0) {
+    list.innerHTML = '';
+    list.className = 'event-list';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  if (activeFilter === 'all') {
+    list.className = 'event-list';
+    list.innerHTML = shown.map(e => renderFullCard(e)).join('');
+  } else {
+    list.className = 'event-grid';
+    const groups = new Map();
+    shown.forEach(e => {
+      const key = e.teamName || 'Other';
+      if (!groups.has(key)) groups.set(key, { icon: e.teamIcon || '', items: [] });
+      groups.get(key).items.push(e);
+    });
+    const orderedGroups = [...groups.entries()].sort((a, b) => {
+      const aKey = a[1].items[0]?.sortKey || 'zzzz';
+      const bKey = b[1].items[0]?.sortKey || 'zzzz';
+      return aKey < bKey ? -1 : aKey > bKey ? 1 : 0;
+    });
+    list.innerHTML = orderedGroups.map(([teamName, group]) => `
+      <div class="team-box">
+        <div class="team-box-header">
+          <span class="team-box-icon">${escapeHtml(group.icon)}</span>
+          <span class="team-box-name">${escapeHtml(teamName)}</span>
+        </div>
+        ${group.items.map(e => renderMiniEvent(e)).join('')}
+      </div>
+    `).join('');
+  }
+
+  list.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.onclick = async () => {
+      try { await deleteDoc(doc(eventsCol, btn.dataset.delete)); } catch (err) { /* ignore */ }
+    };
+  });
+}
+
+function renderFullCard(e) {
+  const cd = computeCountdown(e);
+  const cardStateClass = cd ? (cd.isPast ? 'is-past' : 'is-future') : '';
+  const badgeHtml = cd ? `<span class="countdown-badge ${cd.isPast ? 'is-past' : 'is-future'}">${cd.isPast ? 'Past event' : cd.label}</span>` : '';
+  const childPhoto = e.child === 'james' ? '<img src="james.jpg" alt="James">' : e.child === 'thomas' ? '<img src="thomas.jpg" alt="Thomas">' : childLabel(e.child);
+  return `
+    <div class="event-card ${cardStateClass}">
+      <div class="event-top">
+        ${e.teamName ? `
+          <div class="team-badge">
+            <span class="team-icon">${escapeHtml(e.teamIcon || '')}</span>
+            <span class="team-name">${escapeHtml(e.teamName)}</span>
+          </div>
+        ` : `
+          <p class="event-title" style="font-size:15px; font-weight:600; color:var(--text-primary);">${escapeHtml(e.title || 'Untitled')}</p>
+        `}
+        <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+          ${badgeHtml}
+          <div class="child-tag avatar ${e.child}">${childPhoto}</div>
+        </div>
+      </div>
+      <div class="event-body">
+        ${e.teamName ? `<p class="event-title">${escapeHtml(e.title || 'Untitled')}</p>` : ''}
+        <p class="event-meta">${escapeHtml([e.when, e.location].filter(Boolean).join(' · '))}</p>
+        ${e.notes ? `<p class="event-notes">${escapeHtml(e.notes)}</p>` : ''}
+      </div>
+      <div class="event-actions">
+        <button class="icon-btn" data-delete="${e.id}" aria-label="Delete">✕</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderMiniEvent(e) {
+  const cd = computeCountdown(e);
+  const cardStateClass = cd ? (cd.isPast ? 'is-past' : 'is-future') : '';
+  const badgeHtml = cd ? `<span class="mini-countdown ${cd.isPast ? 'is-past' : 'is-future'}">${cd.isPast ? 'Past' : cd.label}</span>` : '';
+  return `
+    <div class="mini-event ${cardStateClass}">
+      <button class="mini-delete" data-delete="${e.id}" aria-label="Delete">✕</button>
+      <p class="mini-event-title">${escapeHtml(e.title || 'Untitled')}</p>
+      <p class="mini-event-meta">${escapeHtml([e.when, e.location].filter(Boolean).join(' · '))}</p>
+      ${e.notes ? `<p class="mini-event-meta" style="color:var(--text-muted);">${escapeHtml(e.notes)}</p>` : ''}
+      ${badgeHtml}
+    </div>
+  `;
+}
+
+async function init() {
+  await seedIfEmpty();
+  const statusEl = document.getElementById('conn-status');
+  onSnapshot(
+    query(eventsCol, orderBy('sortKey', 'asc')),
+    (snap) => {
+      events = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      statusEl.textContent = '';
+      render();
+    },
+    (err) => {
+      statusEl.textContent = 'Could not connect — check your connection.';
+      render();
+    }
+  );
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+
+render();
+init();
+setInterval(render, 60000);
+</script>
+</body>
+</html>
